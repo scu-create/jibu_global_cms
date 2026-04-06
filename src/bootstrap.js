@@ -1,11 +1,33 @@
 'use strict';
 
-const fs = require('fs-extra');
-const path = require('path');
-const mime = require('mime-types');
-const { categories, authors, articles, global, about } = require('../data/data.json');
+let fs, path, mime, seedData;
+let categories, authors, articles, globalData, about;
+
+function loadSeedDeps() {
+  if (fs) return true; // already loaded
+  try {
+    fs = require('fs-extra');
+    path = require('path');
+    mime = require('mime-types');
+    seedData = require('../data/data.json');
+    categories = seedData.categories;
+    authors = seedData.authors;
+    articles = seedData.articles;
+    globalData = seedData.global;
+    about = seedData.about;
+    return true;
+  } catch (err) {
+    console.log('Seed dependencies not available (expected on Cloud):', err.message);
+    return false;
+  }
+}
 
 async function seedExampleApp() {
+  if (!loadSeedDeps()) {
+    console.log('Skipping seed — dependencies or data.json not found.');
+    return;
+  }
+
   const shouldImportSeedData = await isFirstRun();
 
   if (shouldImportSeedData) {
@@ -190,12 +212,12 @@ async function importGlobal() {
   return createEntry({
     model: 'global',
     entry: {
-      ...global,
+      ...globalData,
       favicon,
       // Make sure it's not a draft
       publishedAt: Date.now(),
       defaultSeo: {
-        ...global.defaultSeo,
+        ...globalData.defaultSeo,
         shareImage,
       },
     },
