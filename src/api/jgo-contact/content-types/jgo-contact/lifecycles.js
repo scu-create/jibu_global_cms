@@ -1,10 +1,21 @@
 module.exports = {
   async afterCreate(event) {
-    const { result, params } = event;
-    
-    // Try the saved result first, then fall back to raw request params
-    // Strapi may store component data differently in the result vs input
-    const contactInfo = result?.contact || params?.data?.contact || {};
+    const { result } = event;
+
+    // In Strapi v4, component data is NOT populated in event.result
+    // We must re-fetch the entry with populate to get the contact component
+    let contactInfo = {};
+    try {
+      const fullEntry = await strapi.entityService.findOne(
+        'api::jgo-contact.jgo-contact',
+        result.id,
+        { populate: ['contact'] }
+      );
+      contactInfo = fullEntry?.contact || {};
+    } catch (fetchErr) {
+      strapi.log.error('Error fetching JGO contact entry:', fetchErr);
+      return;
+    }
 
     try {
       await strapi.plugins['email'].services.email.send({
