@@ -1,9 +1,10 @@
 module.exports = {
   async afterCreate(event) {
-    const { data } = event.params;
+    const { result, params } = event;
     
-    // The data comes under the "contact" component
-    const contactInfo = data.contact || {};
+    // Try the saved result first, then fall back to raw request params
+    // Strapi may store component data differently in the result vs input
+    const contactInfo = result?.contact || params?.data?.contact || {};
 
     try {
       await strapi.plugins['email'].services.email.send({
