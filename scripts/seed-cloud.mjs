@@ -8,7 +8,7 @@
  *   node scripts/seed-cloud.mjs
  */
 
-const STRAPI_URL = process.env.STRAPI_URL || 'https://willing-smile-871b31522c.strapiapp.com';
+const STRAPI_URL = process.env.STRAPI_URL || 'https://exciting-cheese-7f9803973b.strapiapp.com';
 const TOKEN = process.env.STRAPI_TOKEN;
 
 if (!TOKEN) {
